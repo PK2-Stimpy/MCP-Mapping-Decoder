@@ -8,6 +8,7 @@ You will need to have a website.
   2) Add mcp folders with params.csv, methods.csv and fields.csv inside of it. *(Download: http://export.mcpbot.bspk.rs/stable/)*
   3) Add a file called 'mappings.info'
   4) Inside that file you will name all the mappings folders separated by a newline.
+  
 Now you will be able to connect thru this url: http://**HOST**/
 
 # Todo
