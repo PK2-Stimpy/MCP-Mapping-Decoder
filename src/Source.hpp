@@ -10,14 +10,13 @@
 #include "atlstr.h"
 #include <regex>
 
-#define MAPPING_VERSION "1.12_snapshot_20180814"
-#define MAPPING_BASEURL "https://oratoriofestnovel.000webhostapp.com/mcpmappings/"
 #define MAPPING_STORAGE_FOLDER "./mappings/"
 #define MAPPING_STORAGE_TEMP_FOLDER "./temp_mappings/"
 #define MAPPING_STORAGE_ZIP "./temp_mappings/mappings.zip"
 #define MAPPING_FILES_FIELDS "./mappings/fields.csv"
 #define MAPPING_FILES_METHOD "./mappings/method.csv"
 #define MAPPING_FILES_PARAMS "./mappings/params.csv"
+#define MAPPING_FILES_MAPS "./mappings/mappings.info"
 #define EXPORT_FOLDER "./export/"
 #define IMPORT_FOLDER "./import/"
 #define DEBUG 1

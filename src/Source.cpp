@@ -7,23 +7,66 @@
 #include <elzip/elzip.hpp>
 #include <vector>
 #include <map>
+#include <sstream>
 #include <cstdlib>
 #include <algorithm>
+#include <fstream>
 
 std::map<std::string, std::string> mappings;
+std::vector<std::string> mapNames;
 
 int main() {
+	std::string host;
+
 	std::cout << "Checking for folders... ";
 
 	if (!File::dirExists(_T(MAPPING_STORAGE_FOLDER))) _mkdir(MAPPING_STORAGE_FOLDER);
 	if (!File::dirExists(_T(MAPPING_STORAGE_TEMP_FOLDER))) _mkdir(MAPPING_STORAGE_TEMP_FOLDER);
 	if (!File::dirExists(_T(IMPORT_FOLDER))) _mkdir(IMPORT_FOLDER);
 	if (!File::dirExists(_T(EXPORT_FOLDER))) _mkdir(EXPORT_FOLDER);
+	std::cout << "OK!" << std::endl;
 
-	std::cout << "OK!\nWe are downloading the current mappings for the version " << MAPPING_VERSION << "... ";
+	std::cout << "Checking for files... ";
+	if (File::exists(MAPPING_FILES_FIELDS)) remove(MAPPING_FILES_FIELDS);
+	if (File::exists(MAPPING_FILES_MAPS)) remove(MAPPING_FILES_MAPS);
+	if (File::exists(MAPPING_FILES_METHOD)) remove(MAPPING_FILES_METHOD);
+	if (File::exists(MAPPING_FILES_PARAMS)) remove(MAPPING_FILES_PARAMS);
+	std::cout << "OK!" << std::endl;
 
-	std::string _u__fields  = std::string(MAPPING_BASEURL) + std::string(MAPPING_VERSION) + "/fields.csv",
-				_u__methods = std::string(MAPPING_BASEURL) + std::string(MAPPING_VERSION) + "/methods.csv";
+	std::cout << "Host server: ";
+	std::getline(std::cin, host);
+	std::cout << std::endl;
+
+	std::string url = host + "mcpmappings/";
+	std::string url_info = url + "mappings.info";
+
+	Internet::downloadFile(url_info.c_str(), MAPPING_FILES_MAPS);
+	std::ifstream file(MAPPING_FILES_MAPS);
+	
+	std::cout << "List loaded from server!" << std::endl;
+	int l = 0;
+	std::string line = "";
+	while (std::getline(file, line)) {
+		std::string gwer = "   " + std::to_string(l) + ") " + line;
+		std::cout << "  " << l << ") " << line.c_str() << std::endl;
+		mapNames.push_back(url+line);
+		l++;
+	}
+	std::cout << "\nSelect version: ";
+	std::cin >> l;
+	std::cout << std::endl;
+
+	if (l < 0 || l >= mapNames.size()) {
+		std::cout << "Invalid mapping selected!";
+		std::cin.get();
+		return 0;
+	}
+	url = mapNames[l];
+
+	std::cout << "Currently downloading mappings... ";
+
+	std::string _u__fields  = url + "/fields.csv",
+				_u__methods = url + "/methods.csv";
 	if (File::exists(_u__fields)) std::remove(_u__fields.c_str());
 	if (File::exists(_u__methods)) std::remove(_u__methods.c_str());
 	Internet::downloadFile(_u__fields, MAPPING_FILES_FIELDS);
@@ -60,8 +103,19 @@ int main() {
 
 	std::cout << "OK!";
 	Sleep(1000);
+	char clearCache[MAX_PATH];
+	std::cin.getline(clearCache, MAX_PATH);
 	loop();
 	return 1;
+}
+
+bool dirExists(const std::string& dirName_in) {
+	DWORD ftyp = GetFileAttributesA(dirName_in.c_str());
+	if (ftyp == INVALID_FILE_ATTRIBUTES)
+		return false;
+	if (ftyp & FILE_ATTRIBUTE_DIRECTORY)
+		return true;
+	return false;
 }
 
 void loop() {
@@ -73,6 +127,7 @@ void loop() {
 	
 	std::string _i__file = std::string(IMPORT_FOLDER) + std::string(file);
 	std::string _o__file = std::string(EXPORT_FOLDER) + std::string(file);
+
 	if (!File::exists(_i__file)) {
 		std::cout << "\nThe selected file does not exist! Restarting...";
 		Sleep(5000);
