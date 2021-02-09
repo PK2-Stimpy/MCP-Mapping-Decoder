@@ -10,5 +10,9 @@ You will need to have a website.
   4) Inside that file you will name all the mappings folders separated by a newline.
 Now you will be able to connect thru this url: http://**HOST**/
 
+# Todo
+  1. Add multiple snapshots.
+  2. Add folder support.
+
 # Credits
-PK2_Stimpy#2956
+PK2_Stimpy#0001
