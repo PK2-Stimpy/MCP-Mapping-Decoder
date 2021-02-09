@@ -12,8 +12,7 @@ You will need to have a website.
 Now you will be able to connect thru this url: http://**HOST**/
 
 # Todo
-  1. Add multiple snapshots.
-  2. Add folder support.
+  1. Add folder support.
 
 # Credits
 PK2_Stimpy#0001
