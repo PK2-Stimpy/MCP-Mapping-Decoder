@@ -30,7 +30,7 @@ void folderMode();
 void jarMode();
 void loop();
 void menu();
-int main();
+int main(int argc, char *argv[]);
 
 namespace std {
     std::vector<std::string> split(const std::string& input, const std::string& regex) {

@@ -11,11 +11,18 @@
 #include <cstdlib>
 #include <algorithm>
 #include <fstream>
+#include <sstream>
 
 std::map<std::string, std::string> mappings;
 std::vector<std::string> mapNames;
 
-int main() {
+int argsLenght;
+char** args;
+
+int main(int argc, char *argv[]) {
+	argsLenght = argc;
+	args = argv;
+
 	system("title MCPFunctionDecoder by PK2_Stimpy#0001");
 
 	std::string host;
@@ -39,9 +46,12 @@ int main() {
 	Internet::downloadFile("https://www.benf.org/other/cfr/cfr-0.151.jar", DECOMPILER_FILE);
 	std::cout << "OK!" << std::endl;
 
-	std::cout << "Host server: ";
-	std::getline(std::cin, host);
-	std::cout << std::endl;
+	if (argc < 2) {
+		std::cout << "Host server: ";
+		std::getline(std::cin, host);
+		std::cout << std::endl;
+	}
+	else host = argv[1];
 
 	std::string url = host + "mcpmappings/";
 	std::string url_info = url + "mappings.info";
@@ -58,15 +68,19 @@ int main() {
 		mapNames.push_back(url+line);
 		l++;
 	}
-	std::cout << "\nSelect version: ";
-	std::cin >> l;
-	std::cout << std::endl;
 
-	if (l < 0 || l >= mapNames.size()) {
-		std::cout << "Invalid mapping selected!";
-		std::cin.get();
-		return 0;
+	if (argc < 3) {
+		std::cout << "\nSelect version: ";
+		std::cin >> l;
+		std::cout << std::endl;
+		if (l < 0 || l >= mapNames.size()) {
+			std::cout << "Invalid mapping selected!";
+			std::cin.get();
+			return 0;
+		}
 	}
+	else l = atoi(argv[2]);
+
 	url = mapNames[l];
 
 	std::cout << "Currently downloading mappings... ";
@@ -109,8 +123,10 @@ int main() {
 
 	std::cout << "OK!";
 	Sleep(1000);
-	char clearCache[MAX_PATH];
-	std::cin.getline(clearCache, MAX_PATH);
+	if (argc < 3) {
+		char clearCache[MAX_PATH];
+		std::cin.getline(clearCache, MAX_PATH);
+	}
 	menu();
 	return 1;
 }
@@ -126,12 +142,16 @@ bool dirExists(const std::string& dirName_in) {
 
 void loop() {
 	system("cls");
-	char clearCache[MAX_PATH];
-	std::cin.getline(clearCache, MAX_PATH);
+	char *file = nullptr;
 
-	char file[MAX_PATH];
-	std::cout << "Input the file you want to modify(inside import folder): ";
-	std::cin.getline(file, MAX_PATH);
+	if (argsLenght < 5) {
+		char clearCache[MAX_PATH];
+		std::cin.getline(clearCache, MAX_PATH);
+
+		std::cout << "Input the file you want to modify(inside import folder): ";
+		std::cin.getline(file, MAX_PATH);
+	}
+	else file = args[4];
 	
 	std::string _i__file = std::string(IMPORT_FOLDER) + std::string(file);
 	std::string _o__file = std::string(EXPORT_FOLDER) + std::string(file);
@@ -139,7 +159,7 @@ void loop() {
 	if (!File::exists(_i__file)) {
 		std::cout << "\nThe selected file does not exist! Restarting...";
 		Sleep(5000);
-		loop();
+		if(argsLenght < 4) loop();
 		return;
 	}
 	
@@ -148,25 +168,31 @@ void loop() {
 		_c__file = std::ReplaceAll(_c__file, x.first, x.second);
 	File::write(_o__file, _c__file);
 	printf("File '%s' wrote! \n\n", _o__file.c_str());
-	system("pause");
-	menu();
+	if (argsLenght < 4) {
+		system("pause");
+		menu();
+	}
+	else return;
 }
 
 void menu() {
 	system("cls");
 
 	int option = 0;
-	std::cout << "Please select a mode from this list: " << std::endl;
-	std::cout << "   0) File mode" << std::endl;
-	std::cout << "   1) Folder mode" << std::endl;
-	std::cout << "   2) Jar mode" << std::endl;
-	std::cout << "Select: ";
-	std::cin >> option;
-
-	if (option > 2 || option < 0) {
-		menu();
-		return;
+	if (argsLenght < 4) {
+		std::cout << "Please select a mode from this list: " << std::endl;
+		std::cout << "   0) File mode" << std::endl;
+		std::cout << "   1) Folder mode" << std::endl;
+		std::cout << "   2) Jar mode" << std::endl;
+		std::cout << "Select: ";
+		std::cin >> option;
+		if (option > 2 || option < 0) {
+			menu();
+			return;
+		}
 	}
+	else option = atoi(args[3]);
+	
 	switch (option)
 	{
 		case 0: {
@@ -188,22 +214,27 @@ void menu() {
 
 void folderMode() {
 	system("cls");
-	char clearCache[MAX_PATH];
-	std::cin.getline(clearCache, MAX_PATH);
-
 	int sel = 0;
-	std::cout << "This method will override all the contents on the folder. Continue? (yes=1, no=0)  ";
-	std::cin >> sel;
+	char *folder = nullptr;
 
-	if (sel != 1) {
-		menu();
-		return;
+	if (argsLenght < 5) {
+		char clearCache[MAX_PATH];
+		std::cin.getline(clearCache, MAX_PATH);
+
+		std::cout << "This method will override all the contents on the folder. Continue? (yes=1, no=0)  ";
+		std::cin >> sel;
+
+		if (sel != 1) {
+			menu();
+			return;
+		}
+		std::cin.getline(clearCache, MAX_PATH);
+
+		std::cout << "Select folder inside import folder: ";
+		std::cin.getline(folder, MAX_PATH);
+		std::cout << std::endl;
 	}
-	std::cin.getline(clearCache, MAX_PATH);
-	char folder[MAX_PATH];
-	std::cout << "Select folder inside import folder: ";
-	std::cin.getline(folder, MAX_PATH);
-	std::cout << std::endl;
+	else folder = args[4];
 	std::cout << "Writing all files... ";
 
 	std::string folderPath = std::string(IMPORT_FOLDER) + std::string(folder);
@@ -215,18 +246,25 @@ void folderMode() {
 	}
 	std::cout << "OK!" << std::endl;
 	std::cout << "\nDone writing everything!" << std::endl;
-	system("pause");
-	menu();
+	if (argsLenght < 5) {
+		system("pause");
+		menu();
+	}
+	else return;
 }
 
 void jarMode() {
 	system("cls");
-	char clearCache[MAX_PATH];
-	std::cin.getline(clearCache, MAX_PATH);
-	
-	char name[MAX_PATH];
-	std::cout << "Select jar inside jars folder(without .jar): ";
-	std::cin.getline(name, MAX_PATH);
+	char *name = nullptr;
+
+	if (argsLenght < 5) {
+		char clearCache[MAX_PATH];
+		std::cin.getline(clearCache, MAX_PATH);
+
+		std::cout << "Select jar inside jars folder(without .jar): ";
+		std::cin.getline(name, MAX_PATH);
+	}
+	else name = args[4];
 	std::string pathNoJar = std::string(JAR_FOLDER) + std::string(name);
 	std::string path = pathNoJar + ".jar";
 	std::string command = "java -jar " + std::string(DECOMPILER_FILE) + " " + path + " --outputdir " + std::string(JAR_FOLDER) + std::string(name);
@@ -245,6 +283,9 @@ void jarMode() {
 	}
 	std::cout << "OK!\n\nAll done! Output path is: '" << pathNoJar.c_str() << "'" << std::endl;
 
-	system("pause");
-	menu();
+	if (argsLenght < 5) {
+		system("pause");
+		menu();
+	}
+	else return;
 }
