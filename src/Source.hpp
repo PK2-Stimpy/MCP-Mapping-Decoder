@@ -17,13 +17,19 @@
 #define MAPPING_FILES_METHOD "./mappings/method.csv"
 #define MAPPING_FILES_PARAMS "./mappings/params.csv"
 #define MAPPING_FILES_MAPS "./mappings/mappings.info"
+#define DECOMPILER_FILE "./libs/decompiler.jar"
 #define EXPORT_FOLDER "./export/"
 #define IMPORT_FOLDER "./import/"
-#define DEBUG 1
+#define JAR_FOLDER "./jars/"
+#define LIBS_FOLDER "./libs/"
+#define DEBUG 0
 
 std::thread currentThread;
 
+void folderMode();
+void jarMode();
 void loop();
+void menu();
 int main();
 
 namespace std {

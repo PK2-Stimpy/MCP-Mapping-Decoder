@@ -7,6 +7,9 @@
 #include <string>
 #include <sys/stat.h>
 #include <fstream>
+#include <vector>
+#include <experimental/filesystem>
+#include <iostream>
 
 namespace File {
     BOOL dirExists(LPCTSTR szPath)
@@ -34,5 +37,23 @@ namespace File {
         file << content.c_str();
         file.close();
         return 0;
+    }
+    std::vector<std::string> getFilenames(std::experimental::filesystem::path path) {
+        std::vector<std::string> filenames;
+        
+        namespace stdfs = std::experimental::filesystem;
+        const stdfs::directory_iterator end{};
+        for (stdfs::directory_iterator iter{ path }; iter != end; ++iter) {
+            if (stdfs::is_regular_file(*iter))
+                filenames.push_back(iter->path().string());
+            else if (stdfs::is_directory(*iter)) {
+                std::vector<std::string> vector = getFilenames(*iter);
+                for (int i = 0; i < vector.size(); i++)
+                    filenames.push_back(vector[i]);
+            }
+        }
+
+
+        return filenames;
     }
 }

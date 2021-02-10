@@ -1,10 +1,10 @@
 #define _CRT_SECURE_NO_WARNINGS
+#define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
 
 #include "Source.hpp"
 #include "FileApi.h"
 #include "Networking.h"
 #include <direct.h>
-#include <elzip/elzip.hpp>
 #include <vector>
 #include <map>
 #include <sstream>
@@ -16,6 +16,8 @@ std::map<std::string, std::string> mappings;
 std::vector<std::string> mapNames;
 
 int main() {
+	system("title MCPFunctionDecoder by PK2_Stimpy#0001");
+
 	std::string host;
 
 	std::cout << "Checking for folders... ";
@@ -24,6 +26,8 @@ int main() {
 	if (!File::dirExists(_T(MAPPING_STORAGE_TEMP_FOLDER))) _mkdir(MAPPING_STORAGE_TEMP_FOLDER);
 	if (!File::dirExists(_T(IMPORT_FOLDER))) _mkdir(IMPORT_FOLDER);
 	if (!File::dirExists(_T(EXPORT_FOLDER))) _mkdir(EXPORT_FOLDER);
+	if (!File::dirExists(_T(JAR_FOLDER))) _mkdir(JAR_FOLDER);
+	if (!File::dirExists(_T(LIBS_FOLDER))) _mkdir(LIBS_FOLDER);
 	std::cout << "OK!" << std::endl;
 
 	std::cout << "Checking for files... ";
@@ -31,6 +35,8 @@ int main() {
 	if (File::exists(MAPPING_FILES_MAPS)) remove(MAPPING_FILES_MAPS);
 	if (File::exists(MAPPING_FILES_METHOD)) remove(MAPPING_FILES_METHOD);
 	if (File::exists(MAPPING_FILES_PARAMS)) remove(MAPPING_FILES_PARAMS);
+	if (File::exists(DECOMPILER_FILE)) remove(DECOMPILER_FILE);
+	Internet::downloadFile("https://www.benf.org/other/cfr/cfr-0.151.jar", DECOMPILER_FILE);
 	std::cout << "OK!" << std::endl;
 
 	std::cout << "Host server: ";
@@ -105,7 +111,7 @@ int main() {
 	Sleep(1000);
 	char clearCache[MAX_PATH];
 	std::cin.getline(clearCache, MAX_PATH);
-	loop();
+	menu();
 	return 1;
 }
 
@@ -120,6 +126,8 @@ bool dirExists(const std::string& dirName_in) {
 
 void loop() {
 	system("cls");
+	char clearCache[MAX_PATH];
+	std::cin.getline(clearCache, MAX_PATH);
 
 	char file[MAX_PATH];
 	std::cout << "Input the file you want to modify(inside import folder): ";
@@ -141,5 +149,102 @@ void loop() {
 	File::write(_o__file, _c__file);
 	printf("File '%s' wrote! \n\n", _o__file.c_str());
 	system("pause");
-	loop();
+	menu();
+}
+
+void menu() {
+	system("cls");
+
+	int option = 0;
+	std::cout << "Please select a mode from this list: " << std::endl;
+	std::cout << "   0) File mode" << std::endl;
+	std::cout << "   1) Folder mode" << std::endl;
+	std::cout << "   2) Jar mode" << std::endl;
+	std::cout << "Select: ";
+	std::cin >> option;
+
+	if (option > 2 || option < 0) {
+		menu();
+		return;
+	}
+	switch (option)
+	{
+		case 0: {
+			loop();
+			break;
+		}
+		case 1: {
+			folderMode();
+			break;
+		}
+		case 2: {
+			jarMode();
+			break;
+		}
+		default:
+			break;
+	}
+}
+
+void folderMode() {
+	system("cls");
+	char clearCache[MAX_PATH];
+	std::cin.getline(clearCache, MAX_PATH);
+
+	int sel = 0;
+	std::cout << "This method will override all the contents on the folder. Continue? (yes=1, no=0)  ";
+	std::cin >> sel;
+
+	if (sel != 1) {
+		menu();
+		return;
+	}
+	std::cin.getline(clearCache, MAX_PATH);
+	char folder[MAX_PATH];
+	std::cout << "Select folder inside import folder: ";
+	std::cin.getline(folder, MAX_PATH);
+	std::cout << std::endl;
+	std::cout << "Writing all files... ";
+
+	std::string folderPath = std::string(IMPORT_FOLDER) + std::string(folder);
+	for (const auto& name : File::getFilenames(folderPath.c_str())) {
+		std::string contents = File::read(name);
+		for (const auto& x : mappings)
+			contents = std::ReplaceAll(contents, x.first, x.second);
+		File::write(name, contents);
+	}
+	std::cout << "OK!" << std::endl;
+	std::cout << "\nDone writing everything!" << std::endl;
+	system("pause");
+	menu();
+}
+
+void jarMode() {
+	system("cls");
+	char clearCache[MAX_PATH];
+	std::cin.getline(clearCache, MAX_PATH);
+	
+	char name[MAX_PATH];
+	std::cout << "Select jar inside jars folder(without .jar): ";
+	std::cin.getline(name, MAX_PATH);
+	std::string pathNoJar = std::string(JAR_FOLDER) + std::string(name);
+	std::string path = pathNoJar + ".jar";
+	std::string command = "java -jar " + std::string(DECOMPILER_FILE) + " " + path + " --outputdir " + std::string(JAR_FOLDER) + std::string(name);
+
+	std::cout << "Decompiling... " << std::endl;
+	system(command.c_str());
+
+	std::cout << "Done decompiling! " << std::endl;
+
+	std::cout << "Decoding all files... ";
+	for (const auto& f : File::getFilenames(pathNoJar.c_str())) {
+		std::string contents = File::read(f);
+		for (const auto& x : mappings)
+			contents = std::ReplaceAll(contents, x.first, x.second);
+		File::write(f, contents);
+	}
+	std::cout << "OK!\n\nAll done! Output path is: '" << pathNoJar.c_str() << "'" << std::endl;
+
+	system("pause");
+	menu();
 }
