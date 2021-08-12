@@ -12,4 +12,4 @@ You will need to have a website.
 Now you will be able to connect thru this url: http://**HOST**/
 
 # Credits
-PK2_Stimpy#0001
+PK2_Stimpy#7089
